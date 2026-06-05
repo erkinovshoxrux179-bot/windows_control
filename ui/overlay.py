@@ -5,6 +5,8 @@ Rasmga mos ko'rinish:
   [ Windows controller ]  [ Buyruq yuboring... ]  [ mic ]  [ to'lqin ]  [ avatar ]
 """
 
+import tkinter as tk
+
 import customtkinter as ctk
 
 import config
@@ -28,6 +30,8 @@ class ControllerUI(ctk.CTk):
         self._mic_on = config.ALWAYS_LISTENING
         self._wave_running = False
         self._wave_phase = 0
+        self._toast = None          # javob ko'rsatadigan alohida oyna
+        self._toast_after_id = None
 
         # --- Oyna sozlamalari (frameless, ustda) ---
         self.overrideredirect(True)            # ramkasiz
@@ -97,13 +101,6 @@ class ControllerUI(ctk.CTk):
         )
         self.avatar.grid(row=0, column=4, padx=(6, 14))
 
-        # Javob/holat satri (panel ostida ko'rinadi)
-        self.status_lbl = ctk.CTkLabel(
-            self, text="", font=ctk.CTkFont(size=12),
-            text_color=MUTED, fg_color=BG, corner_radius=10, wraplength=config.UI_WIDTH - 40,
-        )
-        # Boshlanishda yashirin; javob kelganda ko'rsatamiz
-
         self._update_mic_visual()
 
     # -----------------------------------------------------------------
@@ -145,7 +142,10 @@ class ControllerUI(ctk.CTk):
     # -----------------------------------------------------------------
     def set_status(self, state: str):
         """Ovoz holatiga qarab to'lqinni boshqaradi."""
-        self.after(0, self._apply_status, state)
+        try:
+            self.after(0, self._apply_status, state)
+        except Exception:
+            pass  # oyna yopilgan bo'lishi mumkin
 
     def _apply_status(self, state: str):
         if state in ("listening", "recognizing"):
@@ -170,18 +170,59 @@ class ControllerUI(ctk.CTk):
         self.after(90, self._animate_wave)
 
     def show_response(self, text: str):
-        """Javobni panel ostida ko'rsatadi."""
-        self.after(0, self._show_response, text)
+        """Javobni bar ostidagi alohida 'toast' oynasida ko'rsatadi."""
+        try:
+            self.after(0, self._show_response, text)
+        except Exception:
+            pass
 
     def _show_response(self, text: str):
         if not text:
             return
-        self.status_lbl.configure(text=text)
-        self.status_lbl.place(x=20, y=config.UI_HEIGHT + 2)
-        # 6 soniyadan keyin yashiramiz
-        self.after(6000, self.status_lbl.place_forget)
+        # Toast oynasini (kerak bo'lsa) yaratamiz
+        if self._toast is None or not self._toast.winfo_exists():
+            self._toast = tk.Toplevel(self)
+            self._toast.overrideredirect(True)
+            self._toast.attributes("-topmost", True)
+            try:
+                self._toast.attributes("-alpha", 0.97)
+            except Exception:
+                pass
+            self._toast_lbl = tk.Label(
+                self._toast, text="", bg=BG, fg=TEXT,
+                font=("Segoe UI", 11), justify="left", anchor="w",
+                wraplength=config.UI_WIDTH - 40, padx=16, pady=10,
+            )
+            self._toast_lbl.pack(fill="both", expand=True)
+
+        self._toast_lbl.configure(text=text)
+        self._toast.update_idletasks()
+        # Bar ostiga joylashtiramiz
+        x = self.winfo_x()
+        y = self.winfo_y() + self.winfo_height() + 6
+        self._toast.geometry(
+            f"{config.UI_WIDTH}x{self._toast.winfo_reqheight()}+{x}+{y}"
+        )
+        self._toast.deiconify()
+
+        # Avvalgi yashirish taymerini bekor qilib, yangisini qo'yamiz
+        if self._toast_after_id:
+            try:
+                self.after_cancel(self._toast_after_id)
+            except Exception:
+                pass
+        self._toast_after_id = self.after(6000, self._hide_toast)
+
+    def _hide_toast(self):
+        if self._toast is not None and self._toast.winfo_exists():
+            self._toast.withdraw()
 
     def set_recognized_text(self, text: str):
         """Tushunilgan ovozli matnni inputga qisqa ko'rsatish."""
-        self.after(0, lambda: (self.entry.delete(0, "end"),
-                               self.entry.insert(0, text)))
+        def _apply():
+            self.entry.delete(0, "end")
+            self.entry.insert(0, text)
+        try:
+            self.after(0, _apply)
+        except Exception:
+            pass

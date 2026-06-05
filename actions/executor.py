@@ -32,11 +32,11 @@ def execute(command: dict) -> str:
     except Exception as e:
         return f"Amalni bajarishda xato: {e}"
 
-    # LLM bergan "reply" bo'lsa, uni asosiy javob qilamiz; amal natijasini qo'shamiz.
+    # chat/unknown uchun LLM javobini ko'rsatamiz.
     if action in ("chat", "unknown"):
         return reply or result
-    if reply and result and reply != result:
-        return reply
+    # Boshqa amallar uchun amalning HAQIQIY natijasini qaytaramiz
+    # (xatolar yashirilib qolmasligi uchun). Natija bo'sh bo'lsa — reply.
     return result or reply
 
 

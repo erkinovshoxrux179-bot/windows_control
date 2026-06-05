@@ -68,6 +68,9 @@ class App:
             self.ui.show_response(text)
             return
         self.ui.set_recognized_text(text)
+        # Darhol pauza — TTS javobini o'z mikrofonimiz eshitib qolmasligi uchun
+        if self.listener:
+            self.listener.pause()
         self.handle_command(text)
 
     # -----------------------------------------------------------------
@@ -80,6 +83,7 @@ class App:
         # Bir vaqtda faqat bitta buyruq bajarilsin
         if not self._busy.acquire(blocking=False):
             return
+        responded = False
         try:
             if self.listener:
                 self.listener.pause()  # TTS ovozini eshitmasligi uchun
@@ -93,11 +97,19 @@ class App:
                 question = command.get("reply") or "Ushbu amalni bajaraymi?"
                 if not self._confirm(question):
                     self._respond("Bekor qilindi.")
+                    responded = True
                     return
 
             result = executor.execute(command)
             self._respond(result)
+            responded = True
+        except Exception as e:
+            self._respond(f"Xatolik yuz berdi: {e}")
+            responded = True
         finally:
+            # _respond chaqirilmagan bo'lsa (kutilmagan holat), mikrofonni tiklaymiz
+            if not responded:
+                self._resume_listening()
             self._busy.release()
 
     def _respond(self, text: str):

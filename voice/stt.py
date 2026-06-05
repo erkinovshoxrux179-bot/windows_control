@@ -9,6 +9,7 @@ lekin internet talab qiladi va yaxshi sifat beradi.
 """
 
 import threading
+import time
 
 try:
     import speech_recognition as sr
@@ -74,13 +75,15 @@ class VoiceListener:
 
         while not self._stop.is_set():
             if self._paused.is_set():
-                threading.Event().wait(0.2)
+                time.sleep(0.2)
                 continue
             try:
                 self.on_status("listening")
                 with mic as source:
+                    # timeout — har 4 soniyada sikl qayta tekshiriladi
+                    # (stop/pause ga tezroq javob berish uchun)
                     audio = self.recognizer.listen(
-                        source, timeout=None, phrase_time_limit=8
+                        source, timeout=4, phrase_time_limit=8
                     )
                 if self._paused.is_set() or self._stop.is_set():
                     continue
@@ -91,6 +94,8 @@ class VoiceListener:
                 text = (text or "").strip()
                 if text and self._passes_wake_word(text):
                     self.on_text(self._strip_wake_word(text))
+            except sr.WaitTimeoutError:
+                pass  # 4 soniyada gap boshlanmadi — qayta tinglaymiz
             except sr.UnknownValueError:
                 pass  # tushunarsiz ovoz — e'tibor bermaymiz
             except sr.RequestError as e:

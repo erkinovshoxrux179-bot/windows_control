@@ -5,7 +5,6 @@ Maqsad: matnli so'rovni (system + user) yuborib, javob matnini qaytarish.
 NLU moduli bu javobdan JSON buyruqni ajratib oladi.
 """
 
-import json
 import requests
 
 import config
