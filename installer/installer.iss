@@ -19,6 +19,13 @@
 #define MyAppPublisher "Windows Controller"
 #define MyAppExeName "WindowsController.exe"
 
+; --- Compile-time tekshiruv: avval PyInstaller bilan .exe yasalganmi? ---
+#ifndef SkipBuildCheck
+#  if !FileExists("..\dist\WindowsController\WindowsController.exe")
+#    error "dist\WindowsController\WindowsController.exe topilmadi! Avval PyInstaller bilan dasturni yig'ing: loyiha ildizida 'pyinstaller installer\WindowsController.spec' yoki 'installer\build.bat' ni ishga tushiring, keyin shu .iss ni kompilyatsiya qiling."
+#  endif
+#endif
+
 [Setup]
 ; AppId — dastur uchun noyob identifikator (o'zgartirmang)
 AppId={{8F3A2C71-4B9E-4D2A-9C1F-7E6D5A4B3C21}

@@ -10,7 +10,12 @@ Natija:
     dist/WindowsController/WindowsController.exe
 """
 
+import os as _os
 from PyInstaller.utils.hooks import collect_all
+
+# Loyiha ildizi — SPECPATH (bu .spec fayl joylashgan papka = installer/) asosida.
+# Shunday qilib, pyinstaller qaysi papkadan ishga tushirilsa ham yo'llar to'g'ri bo'ladi.
+PROJECT_ROOT = _os.path.abspath(_os.path.join(SPECPATH, ".."))
 
 # customtkinter, edge-tts va boshqa kutubxonalar o'zlari bilan
 # data fayllar / yashirin import'lar olib keladi — hammasini yig'amiz.
@@ -52,16 +57,13 @@ hiddenimports += [
 block_cipher = None
 
 # Icon ixtiyoriy — installer/app.ico bo'lsa ishlatamiz, bo'lmasa None
-import os as _os
-_icon_path = _os.path.join(_os.path.dirname(SPECPATH), "installer", "app.ico")
-if not _os.path.isfile(_icon_path):
-    _icon_path = _os.path.join(SPECPATH, "app.ico")
+_icon_path = _os.path.join(PROJECT_ROOT, "installer", "app.ico")
 APP_ICON = _icon_path if _os.path.isfile(_icon_path) else None
 
 
 a = Analysis(
-    ["..\\main.py"],
-    pathex=[".."],
+    [_os.path.join(PROJECT_ROOT, "main.py")],
+    pathex=[PROJECT_ROOT],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
