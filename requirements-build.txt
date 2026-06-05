@@ -1,0 +1,6 @@
+# Faqat o'rnatgich (installer) yasash uchun kerakli qo'shimcha kutubxonalar.
+# Asosiy kutubxonalar requirements.txt da.
+#
+#   pip install -r requirements-build.txt
+
+pyinstaller==6.10.0

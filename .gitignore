@@ -1,0 +1,27 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+env/
+venv/
+.venv/
+
+# --- PyInstaller / build natijalari ---
+build/
+dist/
+*.spec.bak
+
+# --- Inno Setup natijasi ---
+installer/Output/
+
+# --- Maxfiy sozlamalar (API kalit shu yerda!) ---
+settings.env
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

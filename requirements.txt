@@ -1,0 +1,25 @@
+# --- UI ---
+customtkinter==5.2.2
+
+# --- Ovozni tanish (STT) ---
+SpeechRecognition==3.10.4
+# PyAudio mikrofon uchun kerak. Windows'da o'rnatishda muammo bo'lsa:
+#   pip install pipwin && pipwin install pyaudio
+PyAudio==0.2.14
+
+# --- Ovozli javob (TTS) — Uzbek ovozlar (uz-UZ) ---
+edge-tts==6.1.12
+pygame==2.6.0
+
+# --- Windows boshqaruvi ---
+pyautogui==0.9.54
+pyperclip==1.9.0
+pygetwindow==0.0.9
+pywin32==306
+pycaw==20240210
+comtypes==1.4.2
+screen-brightness-control==0.23.0
+psutil==6.0.0
+
+# --- LLM (sizning API: Gemini yoki OpenAI) ---
+requests==2.32.3
